@@ -1,0 +1,6 @@
+Revision history for Perl extension Finance::Bank::PSK.
+
+0.01  Wed Jan 29 22:54:22 CET 2003
+	- original version; created by h2xs 1.2 with options
+		-X -n Finance::Bank::PSK
+
