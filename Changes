@@ -1,5 +1,15 @@
 Revision history for Perl extension Finance::Bank::PSK.
 
+0.03  Thu Aug 14 19:31:07 CEST 2003
+	- removed calls to deprecated WWW::Mechanize methods
+	  follow and form.
+	- added new method get_entries.
+	- added new attribute newline (used by get_entries).
+	- updated examples.pl
+	- added examples-gpg.pl
+	- added EXAMPLES section to man page.
+	- Agent now identifies itself as 'Mac Safari' :)
+
 0.02  Fri Jun 20 23:17:36 CEST 2003
 	- PSK.pm no longer uses Data::Dumper.
 	- PSK.pm uses croak instead of die now.

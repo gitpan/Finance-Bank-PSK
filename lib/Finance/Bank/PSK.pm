@@ -1,4 +1,4 @@
-# $Id: PSK.pm,v 1.4 2003/06/20 21:16:07 florian Exp $
+# $Id: PSK.pm,v 1.7 2003/08/14 22:00:44 florian Exp $
 
 package Finance::Bank::PSK;
 
@@ -9,34 +9,106 @@ use warnings;
 use Carp;
 use WWW::Mechanize;
 use HTML::TokeParser;
+use constant {
+	LOGIN_URL  => 'https://wwwtb.psk.at/InternetBanking/sofabanking.html',
+	DETAIL_URL => 'https://wwwtb.psk.at/InternetBanking/InternetBanking/?d=eus&kord=k%011d',
+};
 use Class::MethodMaker
-  new_hash_init => 'new',
-  get_set       => [ qw/ account user pass / ],
-  boolean       => 'return_floats';
+	new_hash_init => 'new',
+	get_set       => [ qw/ account user pass newline _agent / ],
+	boolean       => 'return_floats';
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 sub check_balance {
 	my $self  = shift;
-	my $agent = WWW::Mechanize->new;
+
+	$self->_connect;
+	$self->_parse_summary($self->_agent->content);
+}
+
+
+sub get_entries {
+	my $self  = shift;
+
+	$self->_connect;
+	$self->_agent->get(sprintf(DETAIL_URL, $self->account));
+	$self->_agent->submit_form(form_number => 1);
+	$self->_parse_entries($self->_agent->content);
+}
+
+
+sub _connect {
+	my $self = shift;
 
 	croak "Need account number to connect.\n" unless $self->account;
 	croak "Need user to connect.\n" unless $self->user;
 	croak "Need password to connect.\n" unless $self->pass;
 
-	$agent->get('https://wwwtb.psk.at/InternetBanking/sofabanking.html');
-	$agent->follow(0);
-	$agent->form(1);
-	$agent->field('tn', $self->account);
-	$agent->field('vf', $self->user);
-	$agent->field('pin', $self->pass);
-	$agent->click('Submit');
+	return if ref $self->_agent eq 'WWW::Mechanize';
 
 	# XXX write tests using the demo account!
-	#$agent->follow('Demo');
+	#$self->_agent->follow('Demo');
 
-	$self->_parse_summary($agent->content);
+	$self->_agent(WWW::Mechanize->new);
+	$self->_agent->agent_alias('Mac Safari');
+	$self->_agent->get(LOGIN_URL);
+	$self->_agent->follow_link(n => 0);
+	$self->_agent->form_number(1);
+	$self->_agent->field('tn', $self->account);
+	$self->_agent->field('vf', $self->user);
+	$self->_agent->field('pin', $self->pass);
+	$self->_agent->click('Submit');
+}
+
+
+sub _parse_entries {
+	my($self, $content) = @_;
+	my $newline         = $self->newline || '; ';
+	my $stream;
+	my @result;
+
+	$content =~ s/<[Bb][Rr]>/$newline/go;
+	$stream = HTML::TokeParser->new(\$content);
+
+	# find and skip the table heading of the detail listing.
+	for(my $i = 0; $i < 4;) {
+		my $class = ($stream->get_tag('td'))->[1]{class};
+
+		$i++ if defined $class and $class eq 'theader';
+	}
+
+	# now process the lines...
+	while(my $row = $stream->get_tag('td')) {
+		my $entry;
+
+		last unless 
+			exists $row->[1]{class} and
+			$row->[1]{class} eq 'tdata';
+
+		# get nr
+		$entry->{nr} = $stream->get_text('/td');
+
+		# get text
+		$stream->get_tag('td');
+		$entry->{text} = $stream->get_text('/td');
+		$entry->{text} =~ s/($newline)$//;
+
+		# get value date
+		$stream->get_tag('td');
+		$entry->{value} = $stream->get_text('/td');
+
+		# get amount
+		$stream->get_tag('td');
+		$entry->{amount} = $stream->get_text('/td');
+		$entry->{amount} = $self->_scalar2float($entry->{amount})
+			if $self->return_floats;
+
+		push @result, $entry;
+	}
+
+	@result;
 }
 
 

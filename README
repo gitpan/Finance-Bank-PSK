@@ -1,4 +1,4 @@
-Finance::Bank::PSK version 0.02
+Finance::Bank::PSK version 0.03
 ===============================
 
 This module provides you with a basic interface to the P.S.K.
@@ -19,7 +19,7 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-   - WWW::Mechainze (at least 0.35)
+   - WWW::Mechainze (at least 0.57)
    - HTML::TokeParser (at least 2.24)
    - Class::MethodMaker (at least 1.06)
 

@@ -1,21 +1,19 @@
 #!/usr/bin/perl
 
-# $Id: balance.pl,v 1.4 2003/08/14 21:42:29 florian Exp $
+# $Id: balance-gpg.pl,v 1.1 2003/08/14 21:42:01 florian Exp $
 
 use Finance::Bank::PSK;
+use GnuPG::Interface;
+use IO::File;
+use IO::Handle;
+use YAML qw/Load/;
 
 use strict;
 use warnings;
 
-my $agent = Finance::Bank::PSK->new(
-	account       => 'xxx',
-	user          => 'xxx',
-	pass          => 'xxx',
-	return_floats => 1,
-);
-
-my $result  = $agent->check_balance;
-my $entries = $agent->get_entries;
+my $agent    = Finance::Bank::PSK->new(&get_secrets);
+my $result   = $agent->check_balance;
+my $entries  = $agent->get_entries;
 
 foreach my $account (@{$result->{accounts}}) {
         printf("%11s: %25s\n", $_->[0], $account->{$_->[1]})
@@ -49,4 +47,34 @@ if(scalar @$entries) {
                         @{$row}{qw/nr value text amount/}
                 );
         }
+}
+
+sub get_secrets {
+        my $secrets = '/Users/florian/bin/psk.gpg';
+        my $cipher  = IO::File->new;
+        my $input   = IO::Handle->new;
+        my $output  = IO::Handle->new;
+        my $gnupg   = GnuPG::Interface->new;
+        my $pid;
+        my $plain;
+
+        $cipher->open($secrets, 'r')
+                or die sprintf("Couldn't open %s\n", $secrets);
+
+        $pid = $gnupg->decrypt(handles => GnuPG::Handles->new(
+                stdin  => $input,
+                stdout => $output,
+        ));
+
+        print $input $_ while <$cipher>;
+
+        close $cipher;
+        close $input;
+
+        $plain = Load(join('', <$output>));
+	close $output;
+
+        waitpid($pid, 0);
+
+        $plain;
 }
