@@ -1,7 +1,8 @@
 Changes
-lib/Finance/Bank/PSK.pm
-examples/balance.pl
-Makefile.PL
 MANIFEST
+Makefile.PL
 README
+examples/balance.pl
+lib/Finance/Bank/PSK.pm
+lib/Finance/Bank/PSK.pod
 test.pl
