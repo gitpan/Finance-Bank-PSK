@@ -83,7 +83,8 @@ information:
                               'currency' => currency
                               'balance'  => account balance
                               'final'    => final account balance
-                          ]
+                            }
+                          ],
             'funds' => [
                           {
                             'name'     => name of the mutual fund
@@ -91,7 +92,7 @@ information:
                             'currency' => currency
                             'balance'  => mutual fund balance
                           }
-                        ]
+                        ],
           };
 
 =item get_entries
@@ -106,7 +107,7 @@ Returns an array of hashes containing all fetched information:
              'text'   => posting text
              'value'  => value date (format: DD.MM)
              'amount' => transfer amount
-           }
+           },
   ];
 
 =back
@@ -210,14 +211,14 @@ Florian Helmberger <fh@laudatio.com>
 
 =head1 VERSION
 
-$Id: PSK.pod,v 1.3 2003/08/14 22:00:44 florian Exp $
+$Id: PSK.pod,v 1.5 2004/05/02 11:59:58 florian Exp $
 
 =head1 COPYRIGHT AND LICENCE
 
 You may distribute under the terms of either the GNU General Public
 License or the Artistic License, as specified in the Perl README file.
 
-Copyright (C) 2003 Florian Helmberger
+Copyright (C) 2003, 2004 Florian Helmberger
 
 =head1 SEE ALSO
 

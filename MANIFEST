@@ -7,3 +7,4 @@ examples/balance-gpg.pl
 lib/Finance/Bank/PSK.pm
 lib/Finance/Bank/PSK.pod
 test.pl
+META.yml                                 Module meta-data (added by MakeMaker)

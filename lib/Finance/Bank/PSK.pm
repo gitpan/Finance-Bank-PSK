@@ -1,4 +1,4 @@
-# $Id: PSK.pm,v 1.7 2003/08/14 22:00:44 florian Exp $
+# $Id: PSK.pm,v 1.8 2004/05/02 12:00:18 florian Exp $
 
 package Finance::Bank::PSK;
 
@@ -18,7 +18,7 @@ use Class::MethodMaker
 	get_set       => [ qw/ account user pass newline _agent / ],
 	boolean       => 'return_floats';
 
-our $VERSION = '0.03';
+our $VERSION = '1.04';
 
 
 sub check_balance {
